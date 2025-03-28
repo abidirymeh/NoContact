@@ -1,0 +1,75 @@
+<div class="container">
+    <h2>Connexion Faciale</h2>
+    
+    <div class="webcam-box">
+        <video id="loginVideo" width="640" height="480" autoplay></video>
+        <button id="loginBtn" class="btn btn-primary">Se Connecter</button>
+        <canvas id="loginCanvas" style="display:none;"></canvas>
+    </div>
+    <div id="loginStatus"></div>
+</div>
+
+<script>
+console.log("Initialisation du script de connexion");
+
+// Éléments
+const video = document.getElementById('loginVideo');
+const loginBtn = document.getElementById('loginBtn');
+const statusDiv = document.getElementById('loginStatus');
+
+// 1. Initialisation webcam
+async function initWebcam() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        console.log("Webcam connectée");
+    } catch (err) {
+        console.error("Erreur webcam:", err);
+        statusDiv.innerHTML = `<div class="alert alert-danger">Erreur webcam: ${err.message}</div>`;
+    }
+}
+
+// 2. Connexion
+loginBtn.addEventListener('click', async () => {
+    console.log("Tentative de connexion");
+    loginBtn.disabled = true;
+    statusDiv.innerHTML = '<div class="alert alert-info">Vérification en cours...</div>';
+    
+    try {
+        // Capture
+        const canvas = document.getElementById('loginCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        // Envoi
+        const response = await fetch('/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                face_image: canvas.toDataURL('image/jpeg')
+            })
+        });
+        
+        const result = await response.json();
+        console.log("Résultat:", result);
+        
+        if (result.status === 'success') {
+            window.location.href = result.redirect;
+        } else {
+            statusDiv.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+        }
+    } catch (error) {
+        console.error("Erreur:", error);
+        statusDiv.innerHTML = '<div class="alert alert-danger">Erreur de connexion</div>';
+    } finally {
+        loginBtn.disabled = false;
+    }
+});
+
+// Initialisation
+initWebcam();
+</script>

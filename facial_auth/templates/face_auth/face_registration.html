@@ -1,0 +1,86 @@
+<div class="container">
+    <h2>Inscription</h2>
+    <form id="registerForm">
+        {% csrf_token %}
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Mot de passe" required>
+        
+        <div class="webcam-box">
+            <video id="registerVideo" width="640" height="480" autoplay></video>
+            <button type="button" id="captureBtn" class="btn btn-primary">Prendre une photo</button>
+            <canvas id="registerCanvas" style="display:none;"></canvas>
+        </div>
+        
+        <button type="submit" class="btn btn-success">S'inscrire</button>
+    </form>
+    <div id="registerStatus"></div>
+</div>
+
+<script>
+// Debug
+console.log("Initialisation du script d'inscription");
+
+// Webcam
+const video = document.getElementById('registerVideo');
+const canvas = document.getElementById('registerCanvas');
+const ctx = canvas.getContext('2d');
+let stream = null;
+
+// 1. Accès à la webcam
+async function initWebcam() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        console.log("Webcam initialisée avec succès");
+    } catch (err) {
+        console.error("Erreur webcam:", err);
+        document.getElementById('registerStatus').innerHTML = 
+            `<div class="alert alert-danger">Erreur webcam: ${err.message}</div>`;
+    }
+}
+
+// 2. Capture d'image
+document.getElementById('captureBtn').addEventListener('click', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    console.log("Photo capturée");
+});
+
+// 3. Envoi du formulaire
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log("Tentative d'envoi du formulaire");
+    
+    const statusDiv = document.getElementById('registerStatus');
+    statusDiv.innerHTML = '<div class="alert alert-info">Traitement en cours...</div>';
+    
+    try {
+        const formData = new FormData(e.target);
+        formData.append('face_image', canvas.toDataURL('image/jpeg'));
+        
+        const response = await fetch('/register/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const result = await response.json();
+        console.log("Réponse du serveur:", result);
+        
+        if (result.redirect) {
+            window.location.href = result.redirect;
+        } else {
+            statusDiv.innerHTML = `<div class="alert alert-danger">${result.error || 'Erreur inconnue'}</div>`;
+        }
+    } catch (error) {
+        console.error("Erreur:", error);
+        statusDiv.innerHTML = '<div class="alert alert-danger">Erreur lors de l\'envoi</div>';
+    }
+});
+
+// Initialisation
+initWebcam();
+</script>
