@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Bienvenue, {{ request.user.username }}!</h2>
+    <p>Vous êtes maintenant connecté via reconnaissance faciale.</p>
+    <a href="{% url 'facial_auth:logout' %}" class="btn btn-danger">Déconnexion</a>
+</div>
+{% endblock %}
