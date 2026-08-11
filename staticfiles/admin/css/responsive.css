@@ -1,4 +1,3 @@
-/* Tablets */
 
 input[type="submit"], button {
     -webkit-appearance: none;
@@ -6,7 +5,6 @@ input[type="submit"], button {
 }
 
 @media (max-width: 1024px) {
-    /* Basic */
 
     html {
         -webkit-text-size-adjust: 100%;
@@ -21,7 +19,6 @@ input[type="submit"], button {
         font-size: 0.75rem;
     }
 
-    /* Layout */
 
     #container {
         min-width: 0;
@@ -35,7 +32,6 @@ input[type="submit"], button {
         padding: 10px 30px;
     }
 
-    /* Header */
 
     #header {
         flex-direction: column;
@@ -60,9 +56,8 @@ input[type="submit"], button {
         line-height: 1.4;
     }
 
-    /* Dashboard */
 
-    .dashboard #content {
+    .mouse_feed #content {
         width: auto;
     }
 
@@ -82,7 +77,7 @@ input[type="submit"], button {
         margin-left: 290px;
     }
 
-    .dashboard .module table td a {
+    .mouse_feed .module table td a {
         padding-right: 0;
     }
 
@@ -90,7 +85,6 @@ input[type="submit"], button {
         font-size: 0.8125rem;
     }
 
-    /* Changelist */
 
     #toolbar {
         border: none;
@@ -161,23 +155,18 @@ input[type="submit"], button {
     .filtered .actions,
 
     #changelist .paginator {
-        border-top-color: var(--hairline-color); /* XXX Is this used at all? */
+        border-top-color: var(--hairline-color);
     }
 
     #changelist .results + .paginator {
         border-top: none;
     }
 
-    /* Forms */
 
     label {
         font-size: 1rem;
     }
 
-    /*
-    Minifiers remove the default (text) "type" attribute from "input" HTML
-    tags. Add input:not([type]) to make the CSS stylesheet work the same.
-    */
     .form-row input:not([type]),
     .form-row input[type=text],
     .form-row input[type=password],
@@ -242,7 +231,6 @@ input[type="submit"], button {
         padding: 7px;
     }
 
-    /* Selector */
 
     .selector {
         display: flex;
@@ -387,7 +375,7 @@ input[type="submit"], button {
     }
 
     .datetimeshortcuts {
-        color: var(--border-color); /* XXX Redundant, .datetime span also sets #ccc */
+        color: var(--border-color); 
     }
 
     .form-row .datetime input.vDateField, .form-row .datetime input.vTimeField {
@@ -398,7 +386,6 @@ input[type="submit"], button {
         overflow: auto;
     }
 
-    /* Messages */
 
     ul.messagelist li {
         padding-left: 55px;
@@ -413,7 +400,6 @@ input[type="submit"], button {
         background-position: 30px 14px;
     }
 
-    /* Login */
 
     .login #header {
         padding: 15px 20px;
@@ -423,7 +409,6 @@ input[type="submit"], button {
         margin: 0;
     }
 
-    /* GIS */
 
     div.olMap {
         max-width: calc(100vw - 30px);
@@ -435,7 +420,6 @@ input[type="submit"], button {
         margin-top: 10px;
     }
 
-    /* Docs */
 
     .module table.xfull {
         width: 100%;
@@ -446,10 +430,8 @@ input[type="submit"], button {
     }
 }
 
-/* Mobile */
 
 @media (max-width: 767px) {
-    /* Layout */
 
     #header, #content {
         padding: 15px;
@@ -459,7 +441,6 @@ input[type="submit"], button {
         padding: 10px 15px;
     }
 
-    /* Dashboard */
 
     .colMS, .colSM {
         margin: 0;
@@ -479,7 +460,6 @@ input[type="submit"], button {
         font-size: 1rem;
     }
 
-    /* Changelist */
 
     #changelist {
         align-items: stretch;
@@ -529,7 +509,6 @@ input[type="submit"], button {
         margin-left: 15px;
     }
 
-    /* Forms */
 
     .form-row {
         padding: 15px 0;
@@ -639,7 +618,6 @@ input[type="submit"], button {
         margin-top: 5px;
     }
 
-    /* Related widget */
 
     .related-widget-wrapper {
         width: 100%;
@@ -663,7 +641,6 @@ input[type="submit"], button {
         align-self: center;
     }
 
-    /* Selector */
 
     .selector {
         flex-direction: column;
@@ -706,7 +683,6 @@ input[type="submit"], button {
         background-position: 0 -60px;
     }
 
-    /* Inlines */
 
     .inline-group[data-inline-type="stacked"] .inline-related {
         border: 1px solid var(--hairline-color);
@@ -777,7 +753,6 @@ input[type="submit"], button {
         background-position: 8px 9px;
     }
 
-    /* Submit row */
 
     .submit-row {
         padding: 10px;
@@ -799,7 +774,6 @@ input[type="submit"], button {
         margin: 0;
     }
 
-    /* Messages */
 
     ul.messagelist li {
         padding-left: 40px;
@@ -814,13 +788,11 @@ input[type="submit"], button {
         background-position: 15px 14px;
     }
 
-    /* Paginator */
 
     .paginator .this-page, .paginator a:link, .paginator a:visited {
         padding: 4px 10px;
     }
 
-    /* Login */
 
     body.login {
         padding: 0 15px;
@@ -873,7 +845,6 @@ input[type="submit"], button {
         font-size: 0.8125rem;
     }
 
-    /* Calendar and clock */
 
     .calendarbox, .clockbox {
         position: fixed !important;
@@ -947,7 +918,6 @@ input[type="submit"], button {
         top: 10px;
     }
 
-    /* History */
 
     table#change-history tbody th, table#change-history tbody td {
         font-size: 0.8125rem;
@@ -958,7 +928,6 @@ input[type="submit"], button {
         width: auto;
     }
 
-    /* Docs */
 
     table.model tbody th, table.model tbody td {
         font-size: 0.8125rem;

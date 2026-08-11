@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import UserProfile  # L'import relatif avec le point
+from .models import UserProfile  
 
-# Le reste de votre configuration admin...
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'face_encoding_exists')

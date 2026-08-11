@@ -1,7 +1,3 @@
-/*global Calendar, findPosX, findPosY, get_format, gettext, gettext_noop, interpolate, ngettext, quickElement*/
-// Inserts shortcut buttons after all of the following:
-//     <input type="text" class="vDateField">
-//     <input type="text" class="vTimeField">
 'use strict';
 {
     const DateTimeShortcuts = {
@@ -19,13 +15,13 @@
         },
         dismissClockFunc: [],
         dismissCalendarFunc: [],
-        calendarDivName1: 'calendarbox', // name of calendar <div> that gets toggled
-        calendarDivName2: 'calendarin', // name of <div> that contains calendar
-        calendarLinkName: 'calendarlink', // name of the link that is used to toggle
-        clockDivName: 'clockbox', // name of clock <div> that gets toggled
-        clockLinkName: 'clocklink', // name of the link that is used to toggle
-        shortCutsClass: 'datetimeshortcuts', // class of the clock and cal shortcuts
-        timezoneWarningClass: 'timezonewarning', // class of the warning for timezone mismatch
+        calendarDivName1: 'calendarbox',
+        calendarDivName2: 'calendarin',
+        calendarLinkName: 'calendarlink', 
+        clockDivName: 'clockbox', 
+        clockLinkName: 'clocklink',
+        shortCutsClass: 'datetimeshortcuts', 
+        timezoneWarningClass: 'timezonewarning',
         timezoneOffset: 0,
         init: function() {
             const serverOffset = document.body.dataset.adminUtcOffset;
@@ -45,7 +41,6 @@
                 }
             }
         },
-        // Return the current time while accounting for the server timezone.
         now: function() {
             const serverOffset = document.body.dataset.adminUtcOffset;
             if (serverOffset) {
@@ -259,23 +254,7 @@
             shortcuts_span.appendChild(document.createTextNode('\u00A0|\u00A0'));
             shortcuts_span.appendChild(cal_link);
 
-            // Create calendarbox div.
-            //
-            // Markup looks like:
-            //
-            // <div id="calendarbox3" class="calendarbox module">
-            //     <h2>
-            //           <a href="#" class="link-previous">&lsaquo;</a>
-            //           <a href="#" class="link-next">&rsaquo;</a> February 2003
-            //     </h2>
-            //     <div class="calendar" id="calendarin3">
-            //         <!-- (cal) -->
-            //     </div>
-            //     <div class="calendar-shortcuts">
-            //          <a href="#">Yesterday</a> | <a href="#">Today</a> | <a href="#">Tomorrow</a>
-            //     </div>
-            //     <p class="calendar-cancel"><a href="#">Cancel</a></p>
-            // </div>
+            
             const cal_box = document.createElement('div');
             cal_box.style.display = 'none';
             cal_box.style.position = 'absolute';

@@ -6,26 +6,18 @@ from django.conf import settings
 from django.contrib.auth.models import User
 import numpy as np
 from django.core.exceptions import ValidationError
-
 from django.core.validators import FileExtensionValidator
-
-
-
-
-
 from django.utils import timezone
 
 
 def detect_face(image_path):
-    # Charge le classificateur Haar
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
     )
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-    return len(faces) > 0  # Retourne True si au moins un visage est détecté
-
+    return len(faces) > 0 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -36,15 +28,15 @@ class UserProfile(models.Model):
 
 
 
-
 class FaceProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    encoding = models.BinaryField()  # Stocke l'encodage facial
+    encoding = models.BinaryField()
+    
     image = models.ImageField(
         upload_to='face_images/',
-        null=True,  # Permet les valeurs NULL
-        blank=True,  # Permet les champs vides dans les formulaires
-        default='default_face.jpg'  # Optionnel
+        null=True, 
+        blank=True, 
+        default='default_face.jpg' 
     )
 
     def set_encoding(self, face_encoding):
@@ -66,5 +58,9 @@ class FaceProfile(models.Model):
             return None
     @classmethod
     def get_face_profile(cls, face_encoding):
+<<<<<<< HEAD
         # Votre logique de recherche
         pass
+=======
+        pass
+>>>>>>> 726fe35 (NoContact v1.0 : Nettoyage et rebranding)

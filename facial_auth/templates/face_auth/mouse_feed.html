@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}NoContact — Souris gestuelle{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --nc-void:      #0B1220;
+    --nc-panel:     #121A2C;
+    --nc-panel-hi:  #172036;
+    --nc-line:      #253150;
+    --nc-text:      #E7ECF5;
+    --nc-muted:     #7C88A6;
+    --nc-scan:      #4FD1C5;
+    --nc-scan-dim:  rgba(79, 209, 197, 0.12);
+    --nc-amber:     #E8A855;
+    --nc-amber-dim: rgba(232, 168, 85, 0.10);
+    --nc-danger:    #E5555F;
+    --nc-danger-dim:rgba(229, 85, 95, 0.10);
+    --nc-radius:    10px;
+}
+:root[data-theme="light"] {
+    --nc-void:      #F4F6FA;
+    --nc-panel:     #FFFFFF;
+    --nc-panel-hi:  #EEF2F8;
+    --nc-line:      #DBE1EC;
+    --nc-text:      #101A2E;
+    --nc-muted:     #5B6785;
+    --nc-scan:      #0E8C82;
+    --nc-scan-dim:  rgba(14, 140, 130, 0.10);
+    --nc-amber:     #B9770E;
+    --nc-amber-dim: rgba(185, 119, 14, 0.08);
+    --nc-danger:    #C23A43;
+    --nc-danger-dim:rgba(194, 58, 67, 0.08);
+}
+html, body { background: var(--nc-void) !important; transition: background 0.2s ease; }
+.navbar, footer { display: none !important; }
+
+.nc-shell {
+    font-family: 'Inter', sans-serif;
+    color: var(--nc-text);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+}
+
+/* status bar */
+.nc-statusbar {
+    background: var(--nc-panel);
+    border: 1px solid var(--nc-line);
+    border-radius: var(--nc-radius);
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.nc-wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.nc-wordmark .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--nc-scan);
+    box-shadow: 0 0 8px var(--nc-scan);
+    animation: nc-pulse 2s ease-in-out infinite;
+}
+.nc-credit {
+    text-align: center;
+    margin-top: 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--nc-muted);
+    opacity: 0.7;
+}
+.nc-credit strong { color: var(--nc-scan); font-weight: 500; }
+@keyframes nc-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.nc-controls { display: flex; align-items: center; gap: 0.6rem; }
+.nc-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--nc-muted);
+    text-decoration: none;
+    border: 1px solid var(--nc-line);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+.nc-back:hover { border-color: var(--nc-scan); color: var(--nc-scan); }
+.nc-theme-toggle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--nc-text);
+    background: transparent;
+    border: 1px solid var(--nc-line);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+.nc-theme-toggle:hover { border-color: var(--nc-scan); }
+
+/* header */
+.nc-header { margin-bottom: 1.5rem; }
+.nc-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    margin-bottom: 0.3rem;
+}
+.nc-header p { color: var(--nc-muted); font-size: 0.9rem; margin: 0; }
+
+/* viewport */
+.nc-viewport {
+    background: var(--nc-panel);
+    border: 1px solid var(--nc-line);
+    border-radius: var(--nc-radius);
+    padding: 1.3rem;
+    margin-bottom: 1.25rem;
+}
+.nc-video-frame {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--nc-line);
+}
+.nc-video-frame img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--nc-void);
+}
+.nc-corner {
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 2px solid var(--nc-scan);
+    opacity: 0.85;
+}
+.nc-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.nc-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.nc-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.nc-corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+.nc-tracking-badge {
+    position: absolute;
+    top: 10px; left: 34px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--nc-scan);
+    background: rgba(11, 18, 32, 0.65);
+    border: 1px solid rgba(79, 209, 197, 0.35);
+    border-radius: 20px;
+    padding: 0.15rem 0.55rem;
+    display: flex; align-items: center; gap: 0.35rem;
+}
+.nc-tracking-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--nc-scan);
+    animation: nc-pulse 1.4s ease-in-out infinite;
+}
+
+/* controls */
+.nc-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.2rem;
+}
+.nc-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    padding: 0.55rem 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+.nc-btn:active { transform: scale(0.97); }
+.nc-btn.amber { color: var(--nc-amber); background: var(--nc-amber-dim); border-color: rgba(232,168,85,0.35); }
+.nc-btn.danger { color: var(--nc-danger); background: var(--nc-danger-dim); border-color: rgba(229,85,95,0.35); }
+.nc-btn:hover { opacity: 0.8; }
+
+.nc-status-line {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--nc-muted);
+    min-height: 1.2rem;
+    margin-top: 0.75rem;
+}
+
+/* instructions */
+.nc-instructions {
+    background: var(--nc-panel-hi);
+    border: 1px solid var(--nc-line);
+    border-radius: var(--nc-radius);
+    padding: 1.1rem 1.3rem;
+}
+.nc-instructions-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--nc-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+}
+.nc-instructions ul {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 0.45rem;
+}
+.nc-instructions li {
+    font-size: 0.88rem;
+    color: var(--nc-text);
+    display: flex;
+    gap: 0.5rem;
+}
+.nc-instructions li::before {
+    content: '▸';
+    color: var(--nc-scan);
+    flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nc-wordmark .dot, .nc-tracking-badge .dot { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<script>
+(function() {
+    var saved = localStorage.getItem('nc-theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+<div class="nc-shell">
+
+    <!-- ===== BARRE DE STATUT ===== -->
+    <div class="nc-statusbar">
+        <div class="nc-wordmark">
+            <span class="dot"></span> NOCONTACT
+        </div>
+        <div class="nc-controls">
+            <button type="button" id="nc-theme-toggle" class="nc-theme-toggle" aria-label="Changer de thème">☀</button>
+        </div>
+    </div>
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <div class="nc-content">
+        <h2>Bienvenue, {{ request.user.username }}!</h2>
+        <p>Vous êtes maintenant connecté via reconnaissance faciale.</p>
+        <a href="{% url 'facial_auth:logout' %}" class="btn btn-danger">Déconnexion</a>
+    </div>
+
+</div>
+    <div class="nc-header">
+        <h1>MOD-02 · Souris gestuelle</h1>
+        <p>Contrôle du curseur par suivi de la main en temps réel.</p>
+    </div>
+
+    <div class="nc-viewport">
+        <div class="nc-video-frame">
+            <img src="{% url 'facial_auth:mouse_video_feed' %}" alt="Flux Souris Virtuelle">
+            <span class="nc-corner tl"></span>
+            <span class="nc-corner tr"></span>
+            <span class="nc-corner bl"></span>
+            <span class="nc-corner br"></span>
+            <span class="nc-tracking-badge"><span class="dot"></span> TRACKING</span>
+        </div>
+
+        <div class="nc-actions">
+            <button id="calibrateBtn" class="nc-btn amber">⟳ Calibrer</button>
+            <button id="stopMouseBtn" class="nc-btn danger">■ Arrêter</button>
+        </div>
+        <div class="nc-status-line" id="nc-status-line"></div>
+    </div>
+
+    <div class="nc-instructions">
+        <div class="nc-instructions-label">Instructions</div>
+        <ul>
+            <li>Déplacez l'index pour piloter le curseur à l'écran</li>
+            <li>Rapprochez le pouce et l'index pour effectuer un clic</li>
+        </ul>
+    </div>
+     <div class="nc-credit">développé par <strong>Rimeh Abidi</strong></div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('stopMouseBtn').addEventListener('click', function() {
+    window.location.href = "{% url 'facial_auth:mouse_feed' %}";
+});
+
+document.getElementById('calibrateBtn').addEventListener('click', function() {
+    const status = document.getElementById('nc-status-line');
+    status.textContent = 'CALIBRATION EN COURS...';
+    setTimeout(function() {
+        status.textContent = 'CALIBRATION TERMINÉE';
+    }, 1500);
+});
+
+function ncSetToggleIcon(theme) {
+    const btn = document.getElementById('nc-theme-toggle');
+    if (btn) btn.textContent = theme === 'light' ? '☾' : '☀';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    ncSetToggleIcon(document.documentElement.getAttribute('data-theme') || 'dark');
+    const toggle = document.getElementById('nc-theme-toggle');
+    if (toggle) {
+        toggle.addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('nc-theme', next);
+            ncSetToggleIcon(next);
+        });
+    }
+});
+</script>
+{% endblock %}

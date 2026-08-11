@@ -1,5 +1,3 @@
-/* GLOBAL */
-
 th {
     text-align: right;
 }
@@ -34,7 +32,6 @@ tfoot td:first-child {
     border-left: none;
 }
 
-/* LAYOUT */
 
 #user-tools {
     right: auto;
@@ -61,7 +58,6 @@ div.breadcrumbs {
     margin-right: 0;
 }
 
-/* SORTABLE TABLES */
 
 table thead th.sorted .sortoptions {
    float: left;
@@ -72,14 +68,12 @@ thead th.sorted .text {
     padding-left: 42px;
 }
 
-/* dashboard styles */
 
-.dashboard .module table td a {
+.mouse_feed .module table td a {
     padding-left: .6em;
     padding-right: 16px;
 }
 
-/* changelists styles */
 
 .change-list .filtered table {
     border-left: none;
@@ -117,7 +111,6 @@ thead th.sorted .text {
     margin-right: auto;
 }
 
-/* FORMS */
 
 .aligned label {
     padding: 0 0 3px 1em;
@@ -191,7 +184,6 @@ fieldset .fieldBox {
     padding: 10px 12px;
 }
 
-/* WIDGETS */
 
 .calendarnav-previous {
     top: 0;
@@ -263,7 +255,6 @@ form .form-row p.datetime {
     float: right;
 }
 
-/* MISC */
 
 .inline-related h2, .inline-group h2 {
     text-align: right

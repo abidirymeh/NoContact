@@ -1,48 +1,183 @@
-<div class="container">
-    <h2>Connexion Faciale</h2>
-    
-    <div class="webcam-box">
-        <video id="loginVideo" width="640" height="480" autoplay></video>
-        <button id="loginBtn" class="btn btn-primary">Se Connecter</button>
-        <canvas id="loginCanvas" style="display:none;"></canvas>
+<script>
+(function() {
+    var saved = localStorage.getItem('nc-theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+
+<div class="biometric-auth-container">
+    <button type="button" id="nc-theme-toggle" class="nc-theme-toggle" aria-label="Changer de thème">☀</button>
+
+    <div class="glassmorphism-card">
+        <div class="auth-header">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+                <span>NOCONTACT</span>
+            </div>
+            <h1>Authentification biométrique</h1>
+            <p>Positionnez votre visage devant la caméra</p>
+        </div>
+
+        <div class="biometric-scanner">
+            <div class="scanner-animation">
+                <video id="loginVideo" autoplay playsinline muted></video>
+                <div class="face-outline">
+                    <div class="scanning-beam"></div>
+                </div>
+                <span class="nc-corner tl"></span>
+                <span class="nc-corner tr"></span>
+                <span class="nc-corner bl"></span>
+                <span class="nc-corner br"></span>
+            </div>
+
+            <canvas id="loginCanvas" style="display:none;"></canvas>
+
+            <div id="scanStatus" class="scan-status">
+                <span class="scan-status-dot"></span>
+                <span id="scanStatusText">Initialisation de la caméra...</span>
+            </div>
+        </div>
+
+        <div id="recognitionResult" class="recognition-result" style="display:none;">
+            <div id="personInfo" class="person-info"></div>
+        </div>
+
+        <div class="auth-footer">
+            <p>Nouveau utilisateur ? <a href="{% url 'facial_auth:register' %}" class="auth-link">Créer un compte</a></p>
+            <div class="secure-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Authentification sécurisée
+            </div>
+        </div>
     </div>
-    <div id="loginStatus"></div>
+
+    <div class="particles-container" id="particles-js"></div>
+
+    <div class="nc-credit">développé par <strong>Rimeh Abidi</strong></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
 <script>
+// Thème clair/sombre
+function ncSetToggleIcon(theme) {
+    const btn = document.getElementById('nc-theme-toggle');
+    if (btn) btn.textContent = theme === 'light' ? '☾' : '☀';
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    ncSetToggleIcon(currentTheme);
+
+    const toggle = document.getElementById('nc-theme-toggle');
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('nc-theme', next);
+            ncSetToggleIcon(next);
+            if (window.pJSDom && window.pJSDom[0]) {
+                const c = next === 'light' ? '#1B2438' : '#ffffff';
+                window.pJSDom[0].pJS.particles.color.value = c;
+                window.pJSDom[0].pJS.particles.line_linked.color = c;
+                window.pJSDom[0].pJS.fn.particlesRefresh();
+            }
+        });
+    }
+
+
+    if (typeof particlesJS !== 'undefined') {
+        const particleColor = currentTheme === 'light' ? '#1B2438' : '#ffffff';
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: particleColor },
+                opacity: { value: 0.25, random: true },
+                size: { value: 2, random: true },
+                line_linked: { enable: true, distance: 150, color: particleColor, opacity: 0.1, width: 1 },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
+            }
+        });
+    }
+
+    const scanningBeam = document.querySelector('.scanning-beam');
+    if (scanningBeam) {
+        setInterval(() => {
+            scanningBeam.style.top = '100%';
+            setTimeout(() => {
+                scanningBeam.style.transition = 'none';
+                scanningBeam.style.top = '-10%';
+                setTimeout(() => {
+                    scanningBeam.style.transition = 'top 2s linear';
+                }, 50);
+            }, 2000);
+        }, 2500);
+    }
+});
+
 console.log("Initialisation du script de connexion");
 
-// Éléments
 const video = document.getElementById('loginVideo');
-const loginBtn = document.getElementById('loginBtn');
-const statusDiv = document.getElementById('loginStatus');
+const personInfo = document.getElementById('personInfo');
+const recognitionResult = document.getElementById('recognitionResult');
+const scanStatus = document.getElementById('scanStatus');
+const scanStatusText = document.getElementById('scanStatusText');
+let stream = null;
+let scanLoop = null;
+let scanning = false;
+let authenticated = false;
 
-// 1. Initialisation webcam
-async function initWebcam() {
+function setScanStatus(text, matched) {
+    scanStatusText.textContent = text;
+    scanStatus.classList.toggle('matched', !!matched);
+}
+
+async function initWebcam(attempt = 1) {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'
+            }
+        });
         video.srcObject = stream;
-        console.log("Webcam connectée");
+        console.log("Webcam initialisée avec succès");
+        setScanStatus('Recherche de visage...');
+        scanLoop = setInterval(attemptLogin, 1800);
     } catch (err) {
         console.error("Erreur webcam:", err);
-        statusDiv.innerHTML = `<div class="alert alert-danger">Erreur webcam: ${err.message}</div>`;
+
+       
+        const isBusy = err.name === 'NotReadableError' || err.name === 'AbortError';
+        if (isBusy && attempt <= 6) {
+            setScanStatus(`Caméra occupée, nouvelle tentative (${attempt}/6)...`);
+            setTimeout(() => initWebcam(attempt + 1), 1000);
+            return;
+        }
+
+        setScanStatus('Caméra inaccessible');
+        showError(`Erreur d'accès à la caméra: ${err.message}`);
     }
 }
 
-// 2. Connexion
-loginBtn.addEventListener('click', async () => {
-    console.log("Tentative de connexion");
-    loginBtn.disabled = true;
-    statusDiv.innerHTML = '<div class="alert alert-info">Vérification en cours...</div>';
-    
+async function attemptLogin() {
+    if (scanning || authenticated || !video.srcObject) return;
+    scanning = true;
+
     try {
-        // Capture
         const canvas = document.getElementById('loginCanvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        
-        // Envoi
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
         const response = await fetch('/login/', {
             method: 'POST',
             headers: {
@@ -50,26 +185,479 @@ loginBtn.addEventListener('click', async () => {
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                face_image: canvas.toDataURL('image/jpeg')
+                face_image: canvas.toDataURL('image/jpeg', 0.8)
             })
         });
-        
+
         const result = await response.json();
-        console.log("Résultat:", result);
-        
+
         if (result.status === 'success') {
+            authenticated = true;
+            clearInterval(scanLoop);
+            setScanStatus(`Visage reconnu — ${result.person}`, true);
+            showRecognitionResult(result.person);
+            await Swal.fire({
+                title: 'Connexion réussie',
+                html: `Bonjour <b>${result.person}</b> !`,
+                icon: 'success',
+                timer: 1500,
+                background: 'rgba(255,255,255,0.9)'
+            });
             window.location.href = result.redirect;
         } else {
-            statusDiv.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+            setScanStatus(
+                result.message === 'Aucun visage détecté'
+                    ? 'Recherche de visage...'
+                    : 'Visage non reconnu, nouvelle tentative...'
+            );
         }
     } catch (error) {
         console.error("Erreur:", error);
-        statusDiv.innerHTML = '<div class="alert alert-danger">Erreur de connexion</div>';
+        setScanStatus('Erreur de connexion au serveur');
     } finally {
-        loginBtn.disabled = false;
+        scanning = false;
     }
-});
+}
 
-// Initialisation
+function showRecognitionResult(user) {
+    if (!recognitionResult || !personInfo) return;
+
+    recognitionResult.style.display = 'flex';
+
+    if (user && user !== 'undefined') {
+        recognitionResult.className = 'recognition-result success';
+        personInfo.innerHTML = `
+            <div class="user-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+            </div>
+            <div class="user-info">
+                <h3>Bienvenue <strong>${user}</strong> !</h3>
+            </div>
+        `;
+    } else {
+        recognitionResult.className = 'recognition-result error';
+        personInfo.innerHTML = `
+            <div class="user-avatar error">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                </svg>
+            </div>
+            <div class="user-info">
+                <h3>Personne non reconnue</h3>
+            </div>
+        `;
+    }
+}
+
+function showError(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: message,
+        timer: 3000,
+        background: 'rgba(255,255,255,0.9)'
+    });
+}
+
 initWebcam();
 </script>
+
+<style>
+:root {
+    --nc-void:      #0B1220;
+    --nc-panel:     #121A2C;
+    --nc-panel-hi:  #172036;
+    --nc-line:      #253150;
+    --nc-text:      #E7ECF5;
+    --nc-muted:     #7C88A6;
+    --nc-scan:      #4FD1C5;
+    --nc-scan-dim:  rgba(79, 209, 197, 0.12);
+    --nc-danger:    #E5555F;
+    --nc-success:   #4ad66d;
+    --glass-color:  rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="light"] {
+    --nc-void:      #F4F6FA;
+    --nc-panel:     #FFFFFF;
+    --nc-panel-hi:  #EEF2F8;
+    --nc-line:      #DBE1EC;
+    --nc-text:      #101A2E;
+    --nc-muted:     #5B6785;
+    --nc-scan:      #0E8C82;
+    --nc-scan-dim:  rgba(14, 140, 130, 0.10);
+    --nc-danger:    #C23A43;
+    --nc-success:   #1F9254;
+    --glass-color:  rgba(16, 26, 46, 0.04);
+    --glass-border: rgba(16, 26, 46, 0.10);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: var(--nc-void);
+    color: var(--nc-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.biometric-auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    padding: 2rem;
+}
+
+.nc-theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    font-size: 0.95rem;
+    color: var(--nc-text);
+    background: var(--nc-panel);
+    border: 1px solid var(--nc-line);
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: border-color 0.15s ease;
+}
+.nc-theme-toggle:hover { border-color: var(--nc-scan); }
+
+.glassmorphism-card {
+    background: var(--nc-panel);
+    border-radius: 16px;
+    border: 1px solid var(--nc-line);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 460px;
+    padding: 2.5rem;
+    z-index: 10;
+    animation: fadeInUp 0.6s ease;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+
+.logo svg {
+    width: 26px;
+    height: 26px;
+    fill: var(--nc-scan);
+}
+
+.logo span {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--nc-text);
+}
+
+.auth-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.auth-header p {
+    color: var(--nc-muted);
+    font-size: 0.9rem;
+}
+
+.biometric-scanner {
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.scanner-animation {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--nc-line);
+    background: var(--nc-void);
+}
+
+.scanner-animation video {
+    width: 100%;
+    display: block;
+    height: auto;
+    transform: scaleX(-1);
+}
+
+.nc-corner {
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 2px solid var(--nc-scan);
+    opacity: 0.85;
+}
+.nc-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.nc-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.nc-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.nc-corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+.face-outline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.face-outline::before {
+    content: '';
+    position: absolute;
+    width: 65%;
+    height: 65%;
+    border: 2px dashed var(--nc-scan);
+    opacity: 0.5;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.scanning-beam {
+    position: absolute;
+    top: -10%;
+    left: 10%;
+    width: 80%;
+    height: 8px;
+    background: linear-gradient(to bottom,
+        rgba(79, 209, 197, 0),
+        rgba(79, 209, 197, 0.9),
+        rgba(79, 209, 197, 0));
+    border-radius: 10px;
+    filter: blur(1px);
+    z-index: 2;
+    transition: top 2s linear;
+}
+
+.neu-button {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1.4rem;
+    background: var(--nc-scan);
+    border: none;
+    border-radius: 10px;
+    color: var(--nc-void);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.neu-button:hover { opacity: 0.85; }
+.neu-button:active { transform: scale(0.98); }
+
+.scan-status {
+    width: 100%;
+    margin-top: 1.4rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: var(--nc-panel-hi);
+    border: 1px solid var(--nc-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--nc-muted);
+}
+.scan-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--nc-scan);
+    box-shadow: 0 0 6px var(--nc-scan);
+    animation: nc-dot-pulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+.scan-status.matched .scan-status-dot { background: var(--nc-success); box-shadow: 0 0 6px var(--nc-success); }
+.scan-status.matched { color: var(--nc-success); border-color: rgba(74, 214, 109, 0.3); }
+@keyframes nc-dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.neu-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.neu-button svg { width: 18px; height: 18px; }
+
+.spinner-container {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    animation: rotate 1.5s linear infinite;
+}
+
+.spinner circle {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+.recognition-result {
+    display: none;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.1rem 1.3rem;
+    border-radius: 10px;
+    margin-top: 1.4rem;
+    animation: fadeIn 0.4s ease;
+    background: var(--nc-panel-hi);
+    border: 1px solid var(--nc-line);
+}
+
+.recognition-result.success { border-left: 3px solid var(--nc-success); }
+.recognition-result.error { border-left: 3px solid var(--nc-danger); }
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--nc-scan-dim);
+    flex-shrink: 0;
+}
+
+.user-avatar svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--nc-scan);
+}
+
+.user-avatar.error { background: rgba(229, 85, 95, 0.1); }
+.user-avatar.error svg { fill: var(--nc-danger); }
+
+.user-info h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--nc-text);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.8rem;
+    font-size: 0.88rem;
+    color: var(--nc-muted);
+}
+
+.auth-link {
+    color: var(--nc-scan);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link:hover { text-decoration: underline; }
+
+.secure-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    background: var(--nc-scan-dim);
+    color: var(--nc-scan);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+}
+
+.particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+.nc-credit {
+    position: fixed;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--nc-muted);
+    opacity: 0.7;
+    z-index: 15;
+}
+.nc-credit strong { color: var(--nc-scan); font-weight: 500; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.98); opacity: 0.4; }
+    50% { transform: scale(1.02); opacity: 0.8; }
+    100% { transform: scale(0.98); opacity: 0.4; }
+}
+
+@keyframes rotate { 100% { transform: rotate(360deg); } }
+
+@keyframes dash {
+    0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+    100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .face-outline::before, .scanning-beam { animation: none; }
+}
+
+@media (max-width: 600px) {
+    .glassmorphism-card { padding: 1.5rem; }
+    .auth-header h1 { font-size: 1.3rem; }
+}
+</style>

@@ -1,1 +1,12 @@
 "myenv/Lib/site-packages/cv2/cv2.pyd" 
+__pycache__/
+*.pyc
+myenv/
+staticfiles/
+media/
+debug_images/
+*.pt
+*.onnx
+*.weights
+*.log
+db.sqlite3

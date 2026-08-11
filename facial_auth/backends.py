@@ -12,8 +12,7 @@ User = get_user_model()
 
 class FaceAuthBackend(ModelBackend):
     def authenticate(self, request, face_encoding=None):
-        # Votre logique d'authentification faciale
-        try:
+        try:  
             profile = FaceProfile.objects.get_face_profile(face_encoding)
             return profile.user
         except FaceProfile.DoesNotExist:
