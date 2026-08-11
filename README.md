@@ -107,13 +107,6 @@ Accès à l'application : `http://localhost:8000` → redirection automatique ve
 - Reconnaissance faciale non testée en conditions de faible luminosité
 - Projet à visée pédagogique — non audité pour un déploiement en production
 
-## Roadmap
-
-- [ ] Détection de vivacité (Eye Aspect Ratio / clignement)
-- [ ] Verrouillage automatique par absence de visage
-- [ ] Rappel de posture ergonomique
-- [ ] Lecteur vocal de documents (OCR + synthèse vocale)
-- [ ] Nettoyage des dépendances YOLOv4 obsolètes
 
 ## Auteur
 
