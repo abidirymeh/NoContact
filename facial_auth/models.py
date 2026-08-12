@@ -58,9 +58,7 @@ class FaceProfile(models.Model):
             return None
     @classmethod
     def get_face_profile(cls, face_encoding):
-<<<<<<< HEAD
         # Votre logique de recherche
         pass
-=======
-        pass
->>>>>>> 726fe35 (NoContact v1.0 : Nettoyage et rebranding)
+
+
