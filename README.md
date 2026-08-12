@@ -19,6 +19,14 @@ Le flux est pensé de bout en bout sans contact :
 | Authentification faciale automatique | ✅ Implémenté | Scan en boucle, sans clic ; connexion dès qu'un visage enregistré est reconnu |
 | Souris virtuelle par gestes | ✅ Implémenté | Curseur piloté par l'index (MediaPipe Hands), clic par pincement pouce-index |
 
+---
+## 📸 Captures d'écran
+
+![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/inscription.png)
+![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/connexion.png)
+![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/mouse_feed.png)
+
+
 ## Structure du projet
 
 ```
