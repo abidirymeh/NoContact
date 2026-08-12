@@ -18,9 +18,6 @@ Le flux est pensé de bout en bout sans contact :
 |---|---|---|
 | Authentification faciale automatique | ✅ Implémenté | Scan en boucle, sans clic ; connexion dès qu'un visage enregistré est reconnu |
 | Souris virtuelle par gestes | ✅ Implémenté | Curseur piloté par l'index (MediaPipe Hands), clic par pincement pouce-index |
-| Rappel de posture ergonomique | 🚧 En cours | Alerte en cas de posture prolongée incorrecte (module d'estimation de pose déjà présent côté backend) |
-| Lecteur vocal de documents (OCR) | 🚧 Prévu | Lecture à voix haute d'un texte présenté à la caméra, pour l'accessibilité |
-| Détection d'objets (YOLOv8) | ⚙️ Module additionnel | Détection en temps réel, présente dans le projet mais indépendante du concept "sans contact" |
 
 ## Structure du projet
 
@@ -58,7 +55,6 @@ NoContact/
 
 - **Backend** : Django 5.1.7
 - **Vision par ordinateur** : OpenCV, face_recognition, MediaPipe
-- **Détection d'objets** : YOLOv8 (Ultralytics), PyTorch
 - **Base de données** : SQLite (développement)
 - **Frontend** : HTML/CSS/JS natif, Bootstrap 5 (pages secondaires), Font Awesome, SweetAlert2
 
