@@ -22,9 +22,9 @@ Le flux est pensé de bout en bout sans contact :
 ---
 ## 📸 Captures d'écran
 
-![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/inscription.png)
-![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/connexion.png)
-![image alt](https://github.com/abidirymeh/ComputerVision/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/mouse_feed.png)
+![image alt](https://github.com/abidirymeh/NoContact/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/inscription.png)
+![image alt](https://github.com/abidirymeh/NoContact/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/connexion.png)
+![image alt](https://github.com/abidirymeh/NoContact/blob/fb049591bbada6cde6a4c806b91ff7c7a453947e/mouse_feed.png)
 
 
 ## Structure du projet
@@ -75,8 +75,8 @@ NoContact/
 ## Installation
 
 ```bash
-git clone https://github.com/abidirymeh/ComputerVision.git
-cd ComputerVision
+git clone https://github.com/abidirymeh/NoContact.git
+cd NoContact
 
 python -m venv myenv
 .\myenv\Scripts\activate      # Windows
